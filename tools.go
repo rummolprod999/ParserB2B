@@ -105,3 +105,11 @@ func GetPage(url string) string {
 
 	return string(body)
 }
+
+func GetProcedure(token string, idProc string) string {
+	var st string
+	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/TradeProcedures.GetShortTrade?access_token=%s&id=%s", token, idProc)
+	st = DownloadPage(url)
+	return st
+
+}
