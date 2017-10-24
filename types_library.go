@@ -14,7 +14,9 @@ type ItemInList struct {
 }
 
 type TradeProc struct {
-	Id        string `xml:"id"`
-	Number    string `xml:"number"`
-	DateBegin int64  `xml:"date_begin"`
+	Id          string `xml:"id"`
+	Number      string `xml:"number"`
+	DateBegin   int64  `xml:"date_begin"`
+	PublishDate int64  `xml:"publish_date"`
+	ChangeDate  int64  `xml:"change_date"`
 }

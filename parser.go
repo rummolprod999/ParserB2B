@@ -61,7 +61,7 @@ func ParserProc(date int64, id string, db *sql.DB, token string) error {
 	return nil
 }
 
-func ParserProcedure(PublicationDate time.Time, id string, db *sql.DB, token string) error {
+func ParserProcedure(date time.Time, id string, db *sql.DB, token string) error {
 	defer func() {
 		if p := recover(); p != nil {
 			Logging(p)
@@ -77,11 +77,14 @@ func ParserProcedure(PublicationDate time.Time, id string, db *sql.DB, token str
 		Logging("Ошибка при парсинге строки", err)
 		return err
 	}
-	DateUpdated := PublicationDate
+	var DateUpdated time.Time
+	if p.ChangeDate != 0 {
+		DateUpdated = time.Unix(p.ChangeDate, 0)
+	}
 	IdXml := p.Id
 	TradeId := p.Number
-	DateBegin := time.Unix(p.DateBegin, 0)
-	fmt.Println(DateBegin)
+	//DateBegin := time.Unix(p.DateBegin, 0)
+	fmt.Println(date)
 	fmt.Println(DateUpdated)
 	fmt.Println(TradeId)
 	fmt.Println("")
