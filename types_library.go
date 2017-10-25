@@ -14,9 +14,44 @@ type ItemInList struct {
 }
 
 type TradeProc struct {
-	Id          string `xml:"id"`
-	Number      string `xml:"number"`
-	DateBegin   int64  `xml:"date_begin"`
-	PublishDate int64  `xml:"publish_date"`
-	ChangeDate  int64  `xml:"change_date"`
+	Id           string `xml:"id"`
+	Number       string `xml:"number"`
+	DateBegin    int64  `xml:"date_begin"`
+	DateEnd      int64  `xml:"date_end"`
+	PublishDate  int64  `xml:"publish_date"`
+	ChangeDate   int64  `xml:"change_date"`
+	Url          string `xml:"url"`
+	OsNumber     string `xml:"os_number"`
+	Description  string `xml:"description"`
+	TradeType    string `xml:"trade_type"`
+	Type         string `xml:"type"`
+	DateTradeEnd int64  `xml:"date_trade_end"`
+	Comment      string `xml:"comment"`
+	Currency     string `xml:"currency"`
+	PaymentTerms string `xml:"payment_terms"`
+	Lots         []Lot  `xml:"lots>item"`
+	Organizer
+}
+
+type Organizer struct {
+	OrganizerName string `xml:"customer>name"`
+	OrganizerINN  string `xml:"customer>inn"`
+	OrganizerKPP  string `xml:"customer>kpp"`
+}
+
+type Lot struct {
+	MaxPrice       string          `xml:"price"`
+	Name           string          `xml:"name"`
+	Quantity       string          `xml:"quantity"`
+	UnitName       string          `xml:"unit_name"`
+	OkpdItems      []Okpd          `xml:"okdp>item"`
+	DeliveryPlaces []DeliveryPlace `xml:"delivery_place>item"`
+}
+
+type Okpd struct {
+	Item string `xml:",chardata"`
+}
+
+type DeliveryPlace struct {
+	Item string `xml:",chardata"`
 }

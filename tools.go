@@ -64,7 +64,7 @@ func GetListProcedures(token string) string {
 	var st string
 	tNow := time.Now()
 	tEnd := time.Now().Unix()
-	tStart := tNow.Add(time.Hour * -165).Unix()
+	tStart := tNow.Add(time.Hour * time.Duration(-Count)).Unix()
 	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/TradeProcedures.GetList?access_token=%s&date_from=%v&date_to=%v", token, tStart, tEnd)
 	st = DownloadPage(url)
 	return st
@@ -111,5 +111,24 @@ func GetProcedure(token string, idProc string) string {
 	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/TradeProcedures.GetShortTrade?access_token=%s&id=%s", token, idProc)
 	st = DownloadPage(url)
 	return st
+
+}
+
+func GetConformity(conf string) int {
+	s := strings.ToLower(conf)
+	switch {
+	case strings.Index(s, "открыт") != -1:
+		return 5
+	case strings.Index(s, "аукцион") != -1:
+		return 1
+	case strings.Index(s, "котиров") != -1:
+		return 2
+	case strings.Index(s, "предложен") != -1:
+		return 3
+	case strings.Index(s, "единств") != -1:
+		return 4
+	default:
+		return 6
+	}
 
 }
