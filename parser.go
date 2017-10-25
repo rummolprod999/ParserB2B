@@ -60,11 +60,7 @@ func ParserProc(date int64, id string, db *sql.DB, token string) error {
 }
 
 func ParserProcedure(date time.Time, id string, db *sql.DB, token string) error {
-	defer func() {
-		if p := recover(); p != nil {
-			Logging(p)
-		}
-	}()
+	defer SaveStack()
 	s := GetProcedure(token, id)
 	if s == "" {
 		Logging("Получили пустую строку с процедурой")
