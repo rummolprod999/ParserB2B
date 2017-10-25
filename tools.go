@@ -14,6 +14,13 @@ import (
 
 var layout = "2006-01-02T15:04:05"
 
+func getTimeMoscow(st time.Time) time.Time {
+	location, _ := time.LoadLocation("Europe/Moscow")
+	p := st.In(location)
+	fmt.Println(p)
+	return p
+}
+
 func SaveStack() {
 	if p := recover(); p != nil {
 		var buf [4096]byte
