@@ -49,11 +49,7 @@ func Parser() {
 }
 
 func ParserProc(date int64, id string, db *sql.DB, token string) error {
-	defer func() {
-		if p := recover(); p != nil {
-			Logging(p)
-		}
-	}()
+	defer SaveStack()
 	PublicationDate := time.Unix(date, 0)
 	e := ParserProcedure(PublicationDate, id, db, token)
 	if e != nil {
@@ -109,7 +105,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, token string) error 
 		return err
 	}
 	if res.Next() {
-		Logging("Такой тендер уже есть", TradeId)
+		//Logging("Такой тендер уже есть", TradeId)
 		res.Close()
 		return nil
 	}
