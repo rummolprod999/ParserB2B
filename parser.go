@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"os/exec"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -80,6 +81,12 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, token string) error 
 	TradeId := p.Number
 	if p.OsNumber != "" {
 		TradeId = p.OsNumber
+	}
+	if TradeId == "0" && IdXml != "" {
+		p := strings.Index(IdXml, "_")
+		if p != -1 {
+			TradeId = IdXml[:p]
+		}
 	}
 	//DateBegin := time.Unix(p.DateBegin, 0)
 	//DateTradeEnd := time.Unix(p.DateTradeEnd, 0)
