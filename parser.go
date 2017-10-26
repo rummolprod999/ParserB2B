@@ -39,8 +39,16 @@ func Parser() {
 	if len(l.ListProc) == 0 {
 		Logging("Нет процедур в файле")
 	}
-	for _, p := range l.ListProc {
-		e := ParserProc(p.Date, p.Id, db, token)
+	procedures := make(chan Proc, 3)
+	go func(token string) {
+		for _, p := range l.ListProc {
+			procedures <- Proc{GetProcedure(token, p.Id), p.Date, p.Id}
+		}
+		close(procedures)
+
+	}(token)
+	for x := range procedures {
+		e := ParserProc(x.Date, x.Id, db, x.StXml)
 		if e != nil {
 			Logging("Ошибка парсера в процедуре", e)
 			continue
@@ -49,10 +57,10 @@ func Parser() {
 	}
 }
 
-func ParserProc(date int64, id string, db *sql.DB, token string) error {
+func ParserProc(date int64, id string, db *sql.DB, st string) error {
 	defer SaveStack()
 	PublicationDate := time.Unix(date, 0)
-	e := ParserProcedure(PublicationDate, id, db, token)
+	e := ParserProcedure(PublicationDate, id, db, st)
 	if e != nil {
 		Logging("Ошибка парсера в тендере", e)
 		return e
@@ -60,9 +68,9 @@ func ParserProc(date int64, id string, db *sql.DB, token string) error {
 	return nil
 }
 
-func ParserProcedure(date time.Time, id string, db *sql.DB, token string) error {
+func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	defer SaveStack()
-	s := GetProcedure(token, id)
+	s := st
 	if s == "" {
 		Logging("Получили пустую строку с процедурой")
 		return nil

@@ -55,3 +55,9 @@ type Okpd struct {
 type DeliveryPlace struct {
 	Item string `xml:",chardata"`
 }
+
+type Proc struct{
+	StXml string
+	Date int64
+	Id string
+}
