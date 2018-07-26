@@ -122,6 +122,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	}
 	res.Close()
 	var cancelStatus = 0
+	var updated = false
 	if TradeId != "" {
 		stmt, err := db.Prepare(fmt.Sprintf("SELECT id_tender, date_version FROM %stender WHERE purchase_number = ? AND cancel=0", Prefix))
 		rows, err := stmt.Query(TradeId)
@@ -131,6 +132,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 			return err
 		}
 		for rows.Next() {
+			updated = true
 			var idTender int
 			var dateVersion time.Time
 			err = rows.Scan(&idTender, &dateVersion)
@@ -270,7 +272,11 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	}
 	idt, err := rest.LastInsertId()
 	idTender = int(idt)
-	Addtender++
+	if updated {
+		Updatetender++
+	} else {
+		Addtender++
+	}
 	var LotNumber = 1
 	for _, lot := range p.Lots {
 		idLot := 0
