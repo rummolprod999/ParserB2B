@@ -99,6 +99,10 @@ func DownloadPage(url string) string {
 func GetPage(url string) string {
 	var st string
 	resp, err := http.Get(url)
+	if err != nil {
+		Logging("Ошибка response", url, err)
+		return st
+	}
 	defer resp.Body.Close()
 	if err != nil {
 		Logging("Ошибка скачивания", url, err)
