@@ -96,6 +96,10 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 			TradeId = IdXml[:p]
 		}
 	}
+	if TradeId == "" {
+		Logging("TradeId is empty ", fmt.Sprintf("%+v", p))
+		return nil
+	}
 	//DateBegin := time.Unix(p.DateBegin, 0)
 	//DateTradeEnd := time.Unix(p.DateTradeEnd, 0)
 	/*fmt.Println(date)
