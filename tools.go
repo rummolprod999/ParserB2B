@@ -81,7 +81,7 @@ func DownloadPage(url string) string {
 	var st string
 	count := 0
 	for {
-		if count > 50 {
+		if count > 10 {
 			Logging(fmt.Sprintf("Не скачали файл за %d попыток", count))
 			return st
 		}

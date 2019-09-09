@@ -12,7 +12,7 @@ import (
 )
 
 func Parser() {
-	token := GetToken()
+	token = GetToken()
 	if token == "" {
 		Logging("Получен пустой токен")
 		return

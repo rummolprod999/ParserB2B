@@ -17,6 +17,7 @@ var User string
 var Pass string
 var DbName string
 var Count int
+var token string
 
 type Settings struct {
 	Prefix string `xml:"prefix"`
