@@ -89,6 +89,7 @@ func DownloadPage(url string) string {
 		if st == "" {
 			count++
 			Logging("Получили пустую страницу", url)
+			time.Sleep(3 * time.Second)
 			continue
 		}
 
@@ -121,6 +122,7 @@ func GetProcedure(token string, idProc string) string {
 	var st string
 	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/TradeProcedures.GetShortTrade?access_token=%s&id=%s", token, idProc)
 	st = DownloadPage(url)
+	time.Sleep(3 * time.Second)
 	return st
 
 }
