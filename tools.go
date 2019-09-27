@@ -88,7 +88,7 @@ func DownloadPage(url string) string {
 		st = GetPage(url)
 		if st == "" {
 			count++
-			Logging("Получили пустую страницу", url)
+			//Logging("Получили пустую страницу", url)
 			time.Sleep(3 * time.Second)
 			continue
 		}
