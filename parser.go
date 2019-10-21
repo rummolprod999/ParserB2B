@@ -71,6 +71,7 @@ func ParserProc(date int64, id string, db *sql.DB, st string) error {
 func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	defer SaveStack()
 	s := st
+	typeFz := 3
 	if s == "" {
 		Logging("Получили пустую строку с процедурой")
 		return nil
@@ -112,8 +113,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	fmt.Println(TradeId)
 	fmt.Println("")*/
 	//fmt.Println(s)
-	stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_tender FROM %stender WHERE purchase_number = ? AND date_version = ? AND id_xml = ?", Prefix))
-	res, err := stmt.Query(TradeId, DateUpdated, IdXml)
+	stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_tender FROM %stender WHERE purchase_number = ? AND date_version = ? AND id_xml = ? AND type_fz = ?", Prefix))
+	res, err := stmt.Query(TradeId, DateUpdated, IdXml, typeFz)
 	stmt.Close()
 	if err != nil {
 		Logging("Ошибка выполения запроса", err)
@@ -128,8 +129,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	var cancelStatus = 0
 	var updated = false
 	if TradeId != "" {
-		stmt, err := db.Prepare(fmt.Sprintf("SELECT id_tender, date_version FROM %stender WHERE purchase_number = ? AND cancel=0", Prefix))
-		rows, err := stmt.Query(TradeId)
+		stmt, err := db.Prepare(fmt.Sprintf("SELECT id_tender, date_version FROM %stender WHERE purchase_number = ? AND cancel=0 AND type_fz = ?", Prefix))
+		rows, err := stmt.Query(TradeId, typeFz)
 		stmt.Close()
 		if err != nil {
 			Logging("Ошибка выполения запроса", err)
@@ -263,7 +264,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	if p.DateEnd != 0 {
 		EndDate = time.Unix(p.DateEnd, 0)
 	}
-	typeFz := 3
+
 	idTender := 0
 	Version := 0
 	UrlXml := Href
@@ -376,18 +377,18 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		Logging("Ошибка обработки TenderKwords", e)
 	}
 
-	e1 := AddVerNumber(db, TradeId)
+	e1 := AddVerNumber(db, TradeId, typeFz)
 	if e1 != nil {
 		Logging("Ошибка обработки AddVerNumber", e1)
 	}
 	return nil
 }
 
-func AddVerNumber(db *sql.DB, RegistryNumber string) error {
+func AddVerNumber(db *sql.DB, RegistryNumber string, typeFz int) error {
 	verNum := 1
 	mapTenders := make(map[int]int)
-	stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_tender FROM %stender WHERE purchase_number = ? ORDER BY UNIX_TIMESTAMP(date_version) ASC", Prefix))
-	rows, err := stmt.Query(RegistryNumber)
+	stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_tender FROM %stender WHERE purchase_number = ? AND type_fz = ? ORDER BY UNIX_TIMESTAMP(date_version) ASC", Prefix))
+	rows, err := stmt.Query(RegistryNumber, typeFz)
 	stmt.Close()
 	if err != nil {
 		Logging("Ошибка выполения запроса", err)
