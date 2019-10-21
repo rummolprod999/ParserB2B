@@ -285,8 +285,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	for _, lot := range p.Lots {
 		idLot := 0
 		MaxPrice := lot.MaxPrice
-		stmt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %slot SET id_tender = ?, lot_number = ?, max_price = ?, currency = ?", Prefix))
-		res, err := stmt.Exec(idTender, LotNumber, MaxPrice, p.Currency)
+		stmt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %slot SET id_tender = ?, lot_number = ?, max_price = ?, currency = ?, lot_name = ?", Prefix))
+		res, err := stmt.Exec(idTender, LotNumber, MaxPrice, p.Currency, lot.Name)
 		stmt.Close()
 		if err != nil {
 			Logging("Ошибка вставки lot", err)
@@ -294,6 +294,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		}
 		id, _ := res.LastInsertId()
 		idLot = int(id)
+		LotNumber++
 		idCustomer := 0
 		if p.OrganizerINN != "" {
 			stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_customer FROM %scustomer WHERE inn = ? LIMIT 1", Prefix))
@@ -330,7 +331,28 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		}
 		for _, po := range lot.OkpdItems {
 			stmtr, _ := db.Prepare(fmt.Sprintf("INSERT INTO %spurchase_object SET id_lot = ?, id_customer = ?, okpd2_code = ?, name = ?, quantity_value = ?, customer_quantity_value = ?, okei = ?", Prefix))
-			_, errr := stmtr.Exec(idLot, idCustomer, po.Item, lot.Name, lot.Quantity, lot.Quantity, lot.UnitName)
+			namePO := strings.TrimSpace(fmt.Sprintf("%s", lot.Description))
+			_, errr := stmtr.Exec(idLot, idCustomer, po.Item, namePO, lot.Quantity, lot.Quantity, lot.UnitName)
+			stmtr.Close()
+			if errr != nil {
+				Logging("Ошибка вставки purchase_object", errr)
+				return errr
+			}
+		}
+		for _, po := range lot.Okpd2Items {
+			stmtr, _ := db.Prepare(fmt.Sprintf("INSERT INTO %spurchase_object SET id_lot = ?, id_customer = ?, okpd2_code = ?, name = ?, quantity_value = ?, customer_quantity_value = ?, okei = ?", Prefix))
+			namePO := strings.TrimSpace(fmt.Sprintf("%s", lot.Description))
+			_, errr := stmtr.Exec(idLot, idCustomer, po.Item, namePO, lot.Quantity, lot.Quantity, lot.UnitName)
+			stmtr.Close()
+			if errr != nil {
+				Logging("Ошибка вставки purchase_object", errr)
+				return errr
+			}
+		}
+		for _, po := range lot.Okpd3Items {
+			stmtr, _ := db.Prepare(fmt.Sprintf("INSERT INTO %spurchase_object SET id_lot = ?, id_customer = ?, okpd2_code = ?, name = ?, quantity_value = ?, customer_quantity_value = ?, okei = ?", Prefix))
+			namePO := strings.TrimSpace(fmt.Sprintf("%s", lot.Description))
+			_, errr := stmtr.Exec(idLot, idCustomer, po.Item, namePO, lot.Quantity, lot.Quantity, lot.UnitName)
 			stmtr.Close()
 			if errr != nil {
 				Logging("Ошибка вставки purchase_object", errr)

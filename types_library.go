@@ -42,9 +42,12 @@ type Organizer struct {
 type Lot struct {
 	MaxPrice       string          `xml:"price"`
 	Name           string          `xml:"name"`
+	Description    string          `xml:"description"`
 	Quantity       string          `xml:"quantity"`
 	UnitName       string          `xml:"unit_name"`
-	OkpdItems      []Okpd          `xml:"okdp>item"`
+	OkpdItems      []Okpd          `xml:"okpd>item"`
+	Okpd2Items     []Okpd          `xml:"okpd2>item"`
+	Okpd3Items     []Okpd          `xml:"okdp>item"`
 	DeliveryPlaces []DeliveryPlace `xml:"delivery_place>item"`
 }
 
@@ -56,8 +59,8 @@ type DeliveryPlace struct {
 	Item string `xml:",chardata"`
 }
 
-type Proc struct{
+type Proc struct {
 	StXml string
-	Date int64
-	Id string
+	Date  int64
+	Id    string
 }
