@@ -14,22 +14,23 @@ type ItemInList struct {
 }
 
 type TradeProc struct {
-	Id           string `xml:"id"`
-	Number       string `xml:"number"`
-	DateBegin    int64  `xml:"date_begin"`
-	DateEnd      int64  `xml:"date_end"`
-	PublishDate  int64  `xml:"publish_date"`
-	ChangeDate   int64  `xml:"change_date"`
-	Url          string `xml:"url"`
-	OsNumber     string `xml:"os_number"`
-	Description  string `xml:"description"`
-	TradeType    string `xml:"trade_type"`
-	Type         string `xml:"type"`
-	DateTradeEnd int64  `xml:"date_trade_end"`
-	Comment      string `xml:"comment"`
-	Currency     string `xml:"currency"`
-	PaymentTerms string `xml:"payment_terms"`
-	Lots         []Lot  `xml:"lots>item"`
+	Id           string     `xml:"id"`
+	Number       string     `xml:"number"`
+	DateBegin    int64      `xml:"date_begin"`
+	DateEnd      int64      `xml:"date_end"`
+	PublishDate  int64      `xml:"publish_date"`
+	ChangeDate   int64      `xml:"change_date"`
+	Url          string     `xml:"url"`
+	OsNumber     string     `xml:"os_number"`
+	Description  string     `xml:"description"`
+	TradeType    string     `xml:"trade_type"`
+	Type         string     `xml:"type"`
+	DateTradeEnd int64      `xml:"date_trade_end"`
+	Comment      string     `xml:"comment"`
+	Currency     string     `xml:"currency"`
+	PaymentTerms string     `xml:"payment_terms"`
+	Lots         []Lot      `xml:"lots>item"`
+	Positions    []Position `xml:"positions>item"`
 	Organizer
 }
 
@@ -40,6 +41,7 @@ type Organizer struct {
 }
 
 type Lot struct {
+	LotId          string          `xml:"id"`
 	MaxPrice       string          `xml:"price"`
 	Name           string          `xml:"name"`
 	Description    string          `xml:"description"`
@@ -49,6 +51,15 @@ type Lot struct {
 	Okpd2Items     []Okpd          `xml:"okpd2>item"`
 	Okpd3Items     []Okpd          `xml:"okdp>item"`
 	DeliveryPlaces []DeliveryPlace `xml:"delivery_place>item"`
+}
+
+type Position struct {
+	LotId    string `xml:"lot_id"`
+	Name     string `xml:"name"`
+	Quantity string `xml:"quantity"`
+	Price    string `xml:"price_unit"`
+	Sum      string `xml:"price_all"`
+	UnitName string `xml:"unit_name"`
 }
 
 type Okpd struct {

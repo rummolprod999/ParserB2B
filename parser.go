@@ -283,6 +283,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		Addtender++
 	}
 	var LotNumber = 1
+	idCustomer := 0
+	lotsMap := make(map[string]int)
 	for _, lot := range p.Lots {
 		idLot := 0
 		MaxPrice := lot.MaxPrice
@@ -295,8 +297,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		}
 		id, _ := res.LastInsertId()
 		idLot = int(id)
+		lotsMap[lot.LotId] = idLot
 		LotNumber++
-		idCustomer := 0
 		if p.OrganizerINN != "" {
 			stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_customer FROM %scustomer WHERE inn = ? LIMIT 1", Prefix))
 			rows, err := stmt.Query(p.OrganizerINN)
@@ -370,6 +372,16 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 
 			}
 
+		}
+	}
+	for _, purOb := range p.Positions {
+		stmtr, _ := db.Prepare(fmt.Sprintf("INSERT INTO %spurchase_object SET id_lot = ?, id_customer = ?, okpd2_code = ?, name = ?, quantity_value = ?, customer_quantity_value = ?, okei = ?, price = ?, sum = ?", Prefix))
+		namePO := strings.TrimSpace(fmt.Sprintf("%s", purOb.Name))
+		_, errr := stmtr.Exec(lotsMap[purOb.LotId], idCustomer, "", namePO, purOb.Quantity, purOb.Quantity, purOb.UnitName, purOb.Price, purOb.Sum)
+		stmtr.Close()
+		if errr != nil {
+			Logging("Ошибка вставки purchase_object", errr)
+			return errr
 		}
 	}
 	e := TenderKwords(db, idTender, &(p.Comment))
