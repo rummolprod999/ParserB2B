@@ -26,7 +26,7 @@ func Parser() {
 	}
 	var l ListProcedures
 	if err := xml.Unmarshal([]byte(proc), &l); err != nil {
-		Logging("Ошибка при парсинге строки", err)
+		Logging("Ошибка при парсинге строки", err, proc)
 		return
 	}
 	var Dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&readTimeout=60m&maxAllowedPacket=0&timeout=60m&writeTimeout=60m&autocommit=true&loc=Local", UserDb, PassDb, Server, Port, DbName)
@@ -39,7 +39,53 @@ func Parser() {
 	if len(l.ListProc) == 0 {
 		Logging("Нет процедур в файле")
 	}
-	procedures := make(chan Proc, 3)
+	procedures := make(chan Proc, 1)
+	go func(token string) {
+		for _, p := range l.ListProc {
+			procedures <- Proc{GetProcedure(token, p.Id), p.Date, p.Id}
+		}
+		close(procedures)
+
+	}(token)
+	for x := range procedures {
+		e := ParserProc(x.Date, x.Id, db, x.StXml)
+		if e != nil {
+			Logging("Ошибка парсера в процедуре", e)
+			continue
+		}
+
+	}
+}
+
+func ParserStart() {
+	token = GetToken()
+	if token == "" {
+		Logging("Получен пустой токен")
+		return
+	}
+	//fmt.Println(token)
+	proc := GetListStartProcedures(token)
+	//fmt.Println(proc)
+	if proc == "" || len(proc) < 130 {
+		Logging("Получили пустой список торговых процедур")
+		return
+	}
+	var l ListProcedures
+	if err := xml.Unmarshal([]byte(proc), &l); err != nil {
+		Logging("Ошибка при парсинге строки", err, proc)
+		return
+	}
+	var Dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&readTimeout=60m&maxAllowedPacket=0&timeout=60m&writeTimeout=60m&autocommit=true&loc=Local", UserDb, PassDb, Server, Port, DbName)
+	db, err := sql.Open("mysql", Dsn)
+	defer db.Close()
+	db.SetConnMaxLifetime(time.Second * 3600)
+	if err != nil {
+		Logging("Ошибка подключения к БД", err)
+	}
+	if len(l.ListProc) == 0 {
+		Logging("Нет процедур в файле")
+	}
+	procedures := make(chan Proc, 1)
 	go func(token string) {
 		for _, p := range l.ListProc {
 			procedures <- Proc{GetProcedure(token, p.Id), p.Date, p.Id}
@@ -78,7 +124,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	}
 	var p TradeProc
 	if err := xml.Unmarshal([]byte(s), &p); err != nil {
-		Logging("Ошибка при парсинге строки", err)
+		Logging("Ошибка при парсинге строки", err, s)
 		return err
 	}
 	PublicationDate := time.Unix(p.PublishDate, 0)

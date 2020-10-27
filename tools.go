@@ -77,6 +77,16 @@ func GetListProcedures(token string) string {
 	return st
 }
 
+func GetListStartProcedures(token string) string {
+	var st string
+	tNow := time.Now()
+	tEnd := time.Now().Unix()
+	tStart := tNow.Add(time.Hour * time.Duration(-Count)).Unix()
+	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/TradeProcedures.GetStartList?access_token=%s&date_from=%v&date_to=%v", token, tStart, tEnd)
+	st = DownloadPage(url)
+	return st
+}
+
 func DownloadPage(url string) string {
 	var st string
 	count := 0
