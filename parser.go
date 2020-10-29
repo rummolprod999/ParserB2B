@@ -116,7 +116,7 @@ func ParserProc(date int64, id string, db *sql.DB, st string) error {
 
 func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	defer SaveStack()
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	s := st
 	typeFz := 3
 	if s == "" {
