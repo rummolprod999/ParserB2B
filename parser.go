@@ -26,7 +26,7 @@ func Parser() {
 	}
 	var l ListProcedures
 	if err := xml.Unmarshal([]byte(proc), &l); err != nil {
-		Logging("Ошибка при парсинге строки", err, proc)
+		Logging("Ошибка при парсинге строки", err)
 		return
 	}
 	var Dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&readTimeout=60m&maxAllowedPacket=0&timeout=60m&writeTimeout=60m&autocommit=true&loc=Local", UserDb, PassDb, Server, Port, DbName)
@@ -125,7 +125,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	}
 	var p TradeProc
 	if err := xml.Unmarshal([]byte(s), &p); err != nil {
-		Logging("Ошибка при парсинге строки", err, s)
+		Logging("Ошибка при парсинге строки", err)
 		return err
 	}
 	PublicationDate := time.Unix(p.PublishDate, 0)
