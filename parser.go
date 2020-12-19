@@ -477,7 +477,7 @@ func AddVerNumber(db *sql.DB, RegistryNumber string, typeFz int) error {
 	return nil
 }
 
-func TenderKwords(db *sql.DB, idTender int, comment *string) error {
+func TenderKwords(db *sql.DB, idTender int, comment *string, addInfo ...string) error {
 	resString := ""
 	stmt, _ := db.Prepare(fmt.Sprintf("SELECT DISTINCT po.name, po.okpd_name FROM %spurchase_object AS po LEFT JOIN %slot AS l ON l.id_lot = po.id_lot WHERE l.id_tender = ?", Prefix, Prefix))
 	rows, err := stmt.Query(idTender)
@@ -598,6 +598,9 @@ func TenderKwords(db *sql.DB, idTender int, comment *string) error {
 	}
 	rows4.Close()
 	resString = fmt.Sprintf("%s %s", resString, *comment)
+	for _, addI := range addInfo {
+		resString = fmt.Sprintf("%s %s", resString, addI)
+	}
 	re := regexp.MustCompile(`\s+`)
 	resString = re.ReplaceAllString(resString, " ")
 	stmtr, _ := db.Prepare(fmt.Sprintf("UPDATE %stender SET tender_kwords = ? WHERE id_tender = ?", Prefix))
