@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strconv"
@@ -57,10 +58,21 @@ func GetOkpd(s string) (int, string) {
 
 func GetToken() string {
 	var st string
-	url := fmt.Sprintf("https://www.b2b-center.ru/integration/xml/User.Login?login=%s&password=%s", User, Pass)
-	s := DownloadPage(url)
+	url_post := "https://www.b2b-center.ru/integration/xml/User.Login"
+	data := url.Values{
+		"login":    {User},
+		"password": {Pass},
+	}
+
+	resp, err := http.PostForm(url_post, data)
+	if err != nil {
+		Logging("Ошибка response", url_post, err)
+		return st
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 	var tkn AccessToken
-	if err := xml.Unmarshal([]byte(s), &tkn); err != nil {
+	if err := xml.Unmarshal(body, &tkn); err != nil {
 		Logging("Ошибка при парсинге строки", err)
 		return st
 	}
