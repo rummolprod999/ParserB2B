@@ -145,11 +145,11 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		}
 	}
 	if TradeId == "" {
-		Logging("TradeId is empty ", fmt.Sprintf("%+v", p))
+		//Logging("TradeId is empty ", fmt.Sprintf("%+v", p))
 		return nil
 	}
 	//DateBegin := time.Unix(p.DateBegin, 0)
-	//DateTradeEnd := time.Unix(p.DateTradeEnd, 0)
+	DateTradeEnd := time.Unix(p.DateTradeEnd, 0)
 	/*fmt.Println(date)
 	fmt.Println(PublicationDate)
 	fmt.Println(p.PublishDate)
@@ -211,7 +211,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	PurchaseObjectInfo := p.Description
 	comment := p.Comment
 	NoticeVersion := ""
-	if len(comment) < 2000 {
+	if len(comment) < 2000 && len(p.DeliveryAddress) < 1 {
 		NoticeVersion = comment
 	}
 	PrintForm := Href
@@ -315,8 +315,8 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 	idTender := 0
 	Version := 0
 	UrlXml := Href
-	stmtt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %stender SET id_region = 0, id_xml = ?, purchase_number = ?, doc_publish_date = ?, href = ?, purchase_object_info = ?, type_fz = ?, id_organizer = ?, id_placing_way = ?, id_etp = ?, end_date = ?, cancel = ?, date_version = ?, num_version = ?, notice_version = ?, xml = ?, print_form = ?", Prefix))
-	rest, err := stmtt.Exec(IdXml, TradeId, PublicationDate, Href, PurchaseObjectInfo, typeFz, IdOrganizer, IdPlacingWay, IdEtp, EndDate, cancelStatus, DateUpdated, Version, NoticeVersion, UrlXml, PrintForm)
+	stmtt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %stender SET id_region = 0, id_xml = ?, purchase_number = ?, doc_publish_date = ?, href = ?, purchase_object_info = ?, type_fz = ?, id_organizer = ?, id_placing_way = ?, id_etp = ?, end_date = ?, cancel = ?, date_version = ?, num_version = ?, notice_version = ?, xml = ?, print_form = ?, bidding_date = ?", Prefix))
+	rest, err := stmtt.Exec(IdXml, TradeId, PublicationDate, Href, PurchaseObjectInfo, typeFz, IdOrganizer, IdPlacingWay, IdEtp, EndDate, cancelStatus, DateUpdated, Version, NoticeVersion, UrlXml, PrintForm, DateTradeEnd)
 	stmtt.Close()
 	if err != nil {
 		Logging("Ошибка вставки tender", err)
@@ -346,12 +346,12 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		idLot = int(id)
 		lotsMap[lot.LotId] = idLot
 		LotNumber++
-		if p.OrganizerINN != "" {
+		if p.CustomerINN != "" {
 			stmt, _ := db.Prepare(fmt.Sprintf("SELECT id_customer FROM %scustomer WHERE inn = ? LIMIT 1", Prefix))
-			rows, err := stmt.Query(p.OrganizerINN)
+			rows, err := stmt.Query(p.CustomerINN)
 			stmt.Close()
 			if err != nil {
-				Logging("Ошибка выполения запроса", err)
+				Logging("Ошибка выполнения запроса", err)
 				return err
 			}
 			if rows.Next() {
@@ -369,7 +369,7 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 					return err
 				}
 				stmt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %scustomer SET full_name = ?, is223=1, reg_num = ?, inn = ?", Prefix))
-				res, err := stmt.Exec(p.OrganizerName, out, p.OrganizerINN)
+				res, err := stmt.Exec(p.CustomerName, out, p.CustomerINN)
 				stmt.Close()
 				if err != nil {
 					Logging("Ошибка вставки организатора", err)
@@ -412,6 +412,17 @@ func ParserProcedure(date time.Time, id string, db *sql.DB, st string) error {
 		for _, cr := range lot.DeliveryPlaces {
 			stmt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %scustomer_requirement SET id_lot = ?, id_customer = ?, delivery_place = ?, delivery_term = ?", Prefix))
 			_, err := stmt.Exec(idLot, idCustomer, cr.Item, p.PaymentTerms)
+			stmt.Close()
+			if err != nil {
+				Logging("Ошибка вставки customer_requirement", err)
+				return err
+
+			}
+
+		}
+		for _, cr := range p.DeliveryAddress {
+			stmt, _ := db.Prepare(fmt.Sprintf("INSERT INTO %scustomer_requirement SET id_lot = ?, id_customer = ?, delivery_place = ?, delivery_term = ?", Prefix))
+			_, err := stmt.Exec(idLot, idCustomer, cr.Address, p.Comment)
 			stmt.Close()
 			if err != nil {
 				Logging("Ошибка вставки customer_requirement", err)

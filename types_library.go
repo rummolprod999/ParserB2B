@@ -14,30 +14,42 @@ type ItemInList struct {
 }
 
 type TradeProc struct {
-	Id           string     `xml:"id"`
-	Number       string     `xml:"number"`
-	DateBegin    int64      `xml:"date_begin"`
-	DateEnd      int64      `xml:"date_end"`
-	PublishDate  int64      `xml:"publish_date"`
-	ChangeDate   int64      `xml:"change_date"`
-	Url          string     `xml:"url"`
-	OsNumber     string     `xml:"os_number"`
-	Description  string     `xml:"description"`
-	TradeType    string     `xml:"trade_type"`
-	Type         string     `xml:"type"`
-	DateTradeEnd int64      `xml:"date_trade_end"`
-	Comment      string     `xml:"comment"`
-	Currency     string     `xml:"currency"`
-	PaymentTerms string     `xml:"payment_terms"`
-	Lots         []Lot      `xml:"lots>item"`
-	Positions    []Position `xml:"positions>item"`
+	Id              string         `xml:"id"`
+	Number          string         `xml:"number"`
+	DateBegin       int64          `xml:"date_begin"`
+	DateEnd         int64          `xml:"date_end"`
+	PublishDate     int64          `xml:"publish_date"`
+	ChangeDate      int64          `xml:"change_date"`
+	Url             string         `xml:"url"`
+	OsNumber        string         `xml:"os_number"`
+	Description     string         `xml:"description"`
+	TradeType       string         `xml:"trade_type"`
+	Type            string         `xml:"type"`
+	DateTradeEnd    int64          `xml:"date_trade_end"`
+	Comment         string         `xml:"comment"`
+	Currency        string         `xml:"currency"`
+	PaymentTerms    string         `xml:"payment_terms"`
+	Lots            []Lot          `xml:"lots>item"`
+	Positions       []Position     `xml:"positions>item"`
+	DeliveryAddress []DeliveryAddr `xml:"delivery_address>item"`
 	Organizer
+	Customer
 }
 
 type Organizer struct {
-	OrganizerName string `xml:"customer>name"`
-	OrganizerINN  string `xml:"customer>inn"`
-	OrganizerKPP  string `xml:"customer>kpp"`
+	OrganizerName string `xml:"organizer>name"`
+	OrganizerINN  string `xml:"organizer>inn"`
+	OrganizerKPP  string `xml:"organizer>kpp"`
+}
+
+type DeliveryAddr struct {
+	Address string `xml:"address"`
+}
+
+type Customer struct {
+	CustomerName string `xml:"customer>name"`
+	CustomerINN  string `xml:"customer>inn"`
+	CustomerKPP  string `xml:"customer>kpp"`
 }
 
 type Lot struct {
